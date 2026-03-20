@@ -8,34 +8,34 @@ export default function Navbar() {
     <nav className="bg-blue-600 text-white shadow-lg">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <Link to="/" className="text-2xl font-bold">
-          🏥 Diabetes Diagnosis
+          🏥 Chẩn đoán Tiểu đường
         </Link>
         <div className="flex gap-6">
           <Link to="/articles" className="hover:bg-blue-700 px-3 py-2 rounded">
-            Articles
+            Bài viết
           </Link>
           {isAuthenticated ? (
             <>
               <Link to="/diagnosis" className="hover:bg-blue-700 px-3 py-2 rounded">
-                Diagnosis
+                Chẩn đoán
               </Link>
               <Link to="/history" className="hover:bg-blue-700 px-3 py-2 rounded">
-                History
+                Lịch sử
               </Link>
               <button 
                 onClick={logout}
                 className="hover:bg-blue-700 px-3 py-2 rounded"
               >
-                Logout
+                Đăng xuất
               </button>
             </>
           ) : (
             <>
               <Link to="/login" className="hover:bg-blue-700 px-3 py-2 rounded">
-                Login
+                Đăng nhập
               </Link>
               <Link to="/register" className="hover:bg-blue-700 px-3 py-2 rounded">
-                Register
+                Đăng ký
               </Link>
             </>
           )}

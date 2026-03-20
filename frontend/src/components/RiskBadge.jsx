@@ -7,9 +7,9 @@ export default function RiskBadge({ prediction, probability }) {
       isDiabetes ? 'bg-red-500' : 'bg-green-500'
     }`}>
       <h2 className="text-2xl font-bold mb-2">
-        {isDiabetes ? '⚠️ Diabetes Risk Detected' : '✅ Low Risk'}
+        {isDiabetes ? '⚠️ Phát hiện Nguy cơ Tiểu đường' : '✅ Nguy cơ Thấp'}
       </h2>
-      <p className="text-lg">Risk Probability: {riskPercentage}%</p>
+      <p className="text-lg">Xác suất Nguy cơ: {riskPercentage}%</p>
     </div>
   )
 }

@@ -37,7 +37,7 @@ export default function RegisterPage() {
 
   return (
     <div className="max-w-md mx-auto mt-12 bg-white p-8 rounded-lg shadow-md">
-      <h1 className="text-3xl font-bold mb-6 text-center">Register</h1>
+      <h1 className="text-3xl font-bold mb-6 text-center">Đăng ký</h1>
 
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -59,7 +59,7 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label className="block text-gray-700 font-bold mb-2">Password</label>
+          <label className="block text-gray-700 font-bold mb-2">Mật khẩu</label>
           <input
             type="password"
             name="password"
@@ -71,7 +71,7 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label className="block text-gray-700 font-bold mb-2">Full Name</label>
+          <label className="block text-gray-700 font-bold mb-2">Họ và Tên</label>
           <input
             type="text"
             name="full_name"
@@ -82,7 +82,7 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label className="block text-gray-700 font-bold mb-2">Date of Birth</label>
+          <label className="block text-gray-700 font-bold mb-2">Ngày sinh</label>
           <input
             type="date"
             name="dob"
@@ -93,22 +93,22 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label className="block text-gray-700 font-bold mb-2">Gender</label>
+          <label className="block text-gray-700 font-bold mb-2">Giới tính</label>
           <select
             name="gender"
             value={formData.gender}
             onChange={handleChange}
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500"
           >
-            <option value="">Select Gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other</option>
+            <option value="">Chọn giới tính</option>
+            <option value="male">Nam</option>
+            <option value="female">Nữ</option>
+            <option value="other">Khác</option>
           </select>
         </div>
 
         <div>
-          <label className="block text-gray-700 font-bold mb-2">Phone</label>
+          <label className="block text-gray-700 font-bold mb-2">Điện thoại</label>
           <input
             type="text"
             name="phone"
@@ -123,14 +123,14 @@ export default function RegisterPage() {
           disabled={loading}
           className="w-full bg-blue-600 text-white py-2 rounded-lg font-bold hover:bg-blue-700 disabled:opacity-50"
         >
-          {loading ? 'Loading...' : 'Register'}
+          {loading ? 'Đang tải...' : 'Đăng ký'}
         </button>
       </form>
 
       <p className="mt-4 text-center text-gray-600">
-        Already have an account?{' '}
+        Đã có tài khoản?{' '}
         <Link to="/login" className="text-blue-600 hover:underline">
-          Login here
+          Đăng nhập tại đây
         </Link>
       </p>
     </div>

@@ -32,11 +32,11 @@ export default function HistoryPage() {
     }
   }
 
-  if (loading) return <div className="text-center">Loading...</div>
+  if (loading) return <div className="text-center">Đang tải...</div>
 
   return (
     <div className="max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-8">Diagnosis History</h1>
+      <h1 className="text-3xl font-bold mb-8">Lịch sử Chẩn đoán</h1>
 
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -46,9 +46,9 @@ export default function HistoryPage() {
 
       {records.length === 0 ? (
         <div className="bg-white p-6 rounded-lg shadow-md text-center">
-          <p className="text-gray-600 mb-4">No diagnosis records found</p>
+          <p className="text-gray-600 mb-4">Không tìm thấy bản ghi chẩn đoán</p>
           <a href="/diagnosis" className="text-blue-600 hover:underline">
-            Create your first diagnosis
+            Tạo chẩn đoán đầu tiên của bạn
           </a>
         </div>
       ) : (
@@ -69,10 +69,10 @@ export default function HistoryPage() {
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h3 className="text-lg font-bold">
-                    {riskLevel === 'high' ? '⚠️ High Risk' : riskLevel === 'medium' ? '🟡 Medium Risk' : '✅ Low Risk'}
+                    {riskLevel === 'high' ? '⚠️ Nguy cơ Cao' : riskLevel === 'medium' ? '🟡 Nguy cơ Trung bình' : '✅ Nguy cơ Thấp'}
                   </h3>
                   <p className="text-sm text-gray-500">
-                    {new Date(record.created_at).toLocaleDateString()}
+                    {new Date(record.created_at).toLocaleDateString('vi-VN')}
                   </p>
                 </div>
                 <div className="text-right">
@@ -83,7 +83,7 @@ export default function HistoryPage() {
                     onClick={() => handleDelete(record.id)}
                     className="text-red-600 hover:text-red-800 text-sm mt-2"
                   >
-                    Delete
+                    Xóa
                   </button>
                 </div>
               </div>
@@ -94,7 +94,7 @@ export default function HistoryPage() {
                   <p className="font-bold">{record.glucose ?? '-'}</p>
                 </div>
                 <div>
-                  <p className="text-gray-600">Blood Pressure</p>
+                  <p className="text-gray-600">Huyết áp</p>
                   <p className="font-bold">{record.blood_pressure ?? '-'}</p>
                 </div>
                 <div>
@@ -102,7 +102,7 @@ export default function HistoryPage() {
                   <p className="font-bold">{record.bmi ?? '-'}</p>
                 </div>
                 <div>
-                  <p className="text-gray-600">Age</p>
+                  <p className="text-gray-600">Tuổi</p>
                   <p className="font-bold">{record.age ?? '-'}</p>
                 </div>
               </div>

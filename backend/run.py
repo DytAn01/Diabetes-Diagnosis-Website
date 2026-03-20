@@ -8,4 +8,10 @@ def make_shell_context():
     return {'db': db}
 
 if __name__ == '__main__':
+    print("=" * 60)
+    print("🚀 Starting Diabetes Diagnosis Backend")
+    print("=" * 60)
+    print(f"📡 Server: http://localhost:5000")
+    print(f"🔌 CORS enabled for: http://localhost:5173")
+    print("=" * 60)
     app.run(debug=True, host='0.0.0.0', port=5000)
