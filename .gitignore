@@ -9,11 +9,23 @@ backend/diabetes_diagnosis.db
 backend/ml/models/*.pkl
 backend/instance/
 
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
 # Frontend
 frontend/node_modules/
 frontend/.env
 frontend/dist/
 frontend/.vite/
+package-lock.json
+yarn.lock
 
 # IDE
 .vscode/
