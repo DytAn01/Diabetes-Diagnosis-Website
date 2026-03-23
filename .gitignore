@@ -25,6 +25,7 @@ frontend/.env
 frontend/dist/
 frontend/.vite/
 package-lock.json
+package.json
 yarn.lock
 
 # IDE
