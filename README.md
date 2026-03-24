@@ -74,6 +74,15 @@ Cài dependencies:
 pip install -r requirements.txt
 ```
 
+**Cài đặt MySQL database:**
+
+```bash
+# Start MySQL server trước (hoặc tạo database nếu chưa có)
+python setup_mysql.py
+```
+
+> Đảm bảo MySQL server đang chạy và credentials trong `.env` là chính xác.
+
 Tạo file môi trường:
 
 ```bash
@@ -222,7 +231,7 @@ FLASK_ENV=development
 FLASK_DEBUG=1
 SECRET_KEY=your-secret-key-here
 JWT_SECRET_KEY=your-jwt-secret-key-here
-DATABASE_URL=sqlite:///diabetes_diagnosis.db
+DATABASE_URL=mysql+pymysql://root:password@localhost:3306/diabetes_db
 ```
 
 ### `frontend/.env`

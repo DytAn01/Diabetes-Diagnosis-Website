@@ -16,14 +16,13 @@ def create_app(config_name='development'):
     app.config.from_object(config[config_name])
     
     # Enable CORS FIRST (before initializing other extensions)
-    CORS(app, 
+    CORS(app,
          origins=['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176', 'http://localhost:3000', 'http://127.0.0.1:5173', 'http://127.0.0.1:5174', 'http://127.0.0.1:5175', 'http://127.0.0.1:5176', 'http://127.0.0.1:3000'],
-         methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+         methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH', 'HEAD'],
          allow_headers=['Content-Type', 'Authorization', 'X-Requested-With'],
          expose_headers=['Content-Type', 'Authorization'],
          supports_credentials=True,
-         max_age=3600,
-         send_wildcard=False)
+         max_age=3600)
     
     # Initialize extensions
     db.init_app(app)

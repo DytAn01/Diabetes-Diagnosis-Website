@@ -71,8 +71,22 @@ function HealthTracker() {
     )
   }
 
-  if (!trackerData) {
-    return null
+  if (!trackerData || trackerData.total_records === 0) {
+    return (
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-12 text-center">
+        <Activity className="w-16 h-16 mx-auto text-blue-400 mb-4" />
+        <h3 className="text-2xl font-bold text-blue-900 mb-2">Chưa có lịch sử chẩn đoán</h3>
+        <p className="text-blue-700 mb-6">
+          Bạn chưa thực hiện bất kỳ chẩn đoán nào. Hãy bắt đầu với lần chẩn đoán đầu tiên để theo dõi sức khỏe của bạn.
+        </p>
+        <a
+          href="/diagnosis"
+          className="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
+        >
+          Bắt đầu chẩn đoán ngay
+        </a>
+      </div>
+    )
   }
 
   const chartOptions = {

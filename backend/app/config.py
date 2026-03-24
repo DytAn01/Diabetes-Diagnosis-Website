@@ -16,7 +16,7 @@ class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.getenv(
         'DATABASE_URL',
-        'sqlite:///diabetes_diagnosis.db'
+        'mysql+pymysql://root:Tanle1298@localhost:3306/diabetes_db'
     )
     SQLALCHEMY_ECHO = True
 
@@ -28,7 +28,7 @@ class ProductionConfig(Config):
 class TestingConfig(Config):
     """Testing configuration"""
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:Tanle1298@localhost:3306/diabetes_test_db'
 
 config = {
     'development': DevelopmentConfig,
