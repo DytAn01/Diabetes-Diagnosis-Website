@@ -11,6 +11,7 @@ import DiagnosisPage from './pages/DiagnosisPage'
 import ResultPage from './pages/ResultPage'
 import HistoryPage from './pages/HistoryPage'
 import ArticlesPage from './pages/ArticlesPage'
+import HealthTrackerPage from './pages/HealthTrackerPage'
 import PrivateRoute from './components/PrivateRoute'
 
 function App() {
@@ -39,6 +40,10 @@ function App() {
                 <Route 
                   path="/history" 
                   element={<PrivateRoute><HistoryPage /></PrivateRoute>} 
+                />
+                <Route 
+                  path="/tracker" 
+                  element={<PrivateRoute><HealthTrackerPage /></PrivateRoute>} 
                 />
               </Routes>
             </main>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import axiosClient from '../api/axiosClient'
-import { ChevronDown, ChevronUp, Copy, Trash2 } from 'lucide-react'
+import { ChevronDown, ChevronUp, Copy, Trash2, Activity } from 'lucide-react'
 
 export default function HistoryPage() {
   const [records, setRecords] = useState([])
@@ -55,9 +56,18 @@ export default function HistoryPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">Lịch sử Chẩn đoán</h1>
-        <p className="text-gray-600">Xem chi tiết các lần chẩn đoán của bạn</p>
+      <div className="mb-8 flex justify-between items-start">
+        <div>
+          <h1 className="text-4xl font-bold mb-2">Lịch sử Chẩn đoán</h1>
+          <p className="text-gray-600">Xem chi tiết các lần chẩn đoán của bạn</p>
+        </div>
+        <Link 
+          to="/tracker" 
+          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+        >
+          <Activity className="w-5 h-5" />
+          Health Tracker
+        </Link>
       </div>
 
       {error && (
