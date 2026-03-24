@@ -11,7 +11,7 @@ import DiagnosisPage from './pages/DiagnosisPage'
 import ResultPage from './pages/ResultPage'
 import HistoryPage from './pages/HistoryPage'
 import ArticlesPage from './pages/ArticlesPage'
-import TrackerPage from './pages/HealthTrackerPage'
+import HealthTrackerPage from './pages/HealthTrackerPage'
 import PrivateRoute from './components/PrivateRoute'
 
 function App() {
@@ -27,7 +27,7 @@ function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/articles" element={<ArticlesPage />} />
-                <Route path='/tracker' element={<TrackerPage />} />
+                <Route path='/tracker' element={<HealthTrackerPage />} />
                 
                 {/* Protected Routes */}
                 <Route 
@@ -44,7 +44,7 @@ function App() {
                 />
                 <Route 
                   path="/tracker" 
-                  element={<PrivateRoute><TrackerPage /></PrivateRoute>} 
+                  element={<PrivateRoute><HealthTrackerPage /></PrivateRoute>} 
                 />
               </Routes>
             </main>

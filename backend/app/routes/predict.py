@@ -3,10 +3,12 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
 from app.models.record import DiagnosisRecord
 from app.services.predict_service import PredictService
+from app.services.location_service import LocationService
 from app.utils.validators import validate_prediction_input
 
 predict_bp = Blueprint('predict', __name__)
 predict_service = PredictService()
+location_service = LocationService()
 
 
 def get_risk_level(risk_score):
@@ -67,5 +69,56 @@ def predict():
             'message': 'Diabetes detected' if prediction == 1 else 'No diabetes detected'
         }), 200
     
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@predict_bp.route('/nearby-facilities', methods=['POST'])
+def get_nearby_facilities():
+    """
+    Get nearby hospitals and clinics based on user location
+    
+    Request body:
+    {
+        "latitude": float,
+        "longitude": float,
+        "radius_km": float (optional, default 5),
+        "limit": int (optional, default 10)
+    }
+    """
+    try:
+        data = request.get_json()
+        
+        # Validate required fields
+        if not data or 'latitude' not in data or 'longitude' not in data:
+            return jsonify({'error': 'latitude and longitude are required'}), 400
+        
+        latitude = float(data.get('latitude'))
+        longitude = float(data.get('longitude'))
+        radius_km = float(data.get('radius_km', 5))
+        limit = int(data.get('limit', 10))
+        
+        # Validate ranges
+        if not (-90 <= latitude <= 90) or not (-180 <= longitude <= 180):
+            return jsonify({'error': 'Invalid latitude or longitude'}), 400
+        
+        if radius_km < 0.5 or radius_km > 50:
+            return jsonify({'error': 'radius_km must be between 0.5 and 50'}), 400
+        
+        if limit < 1 or limit > 50:
+            return jsonify({'error': 'limit must be between 1 and 50'}), 400
+        
+        # Get nearby facilities
+        result = location_service.get_nearby_facilities(
+            latitude=latitude,
+            longitude=longitude,
+            radius_km=radius_km,
+            limit=limit
+        )
+        
+        return jsonify(result), 200
+    
+    except ValueError as e:
+        return jsonify({'error': f'Invalid input: {str(e)}'}), 400
     except Exception as e:
         return jsonify({'error': str(e)}), 500
