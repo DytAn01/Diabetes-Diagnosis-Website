@@ -1,11 +1,30 @@
-import { createContext, useContext, useState, useCallback } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect } from 'react'
 
 const ChatContext = createContext()
 
 export function ChatProvider({ children }) {
-  const [currentDiagnosis, setCurrentDiagnosis] = useState(null)
-  const [isOpen, setIsOpen] = useState(false)
+  // Load from localStorage on init
+  const savedDiagnosis = JSON.parse(localStorage.getItem('chat_diagnosis'))
+  const savedIsOpen = localStorage.getItem('chat_is_open') === 'true'
+  const savedMessages = JSON.parse(localStorage.getItem('chat_messages')) || []
+
+  const [currentDiagnosis, setCurrentDiagnosis] = useState(savedDiagnosis)
+  const [isOpen, setIsOpen] = useState(savedIsOpen)
+  const [messages, setMessages] = useState(savedMessages)
   const [shouldGetAdvice, setShouldGetAdvice] = useState(false)
+
+  // Sync with localStorage
+  useEffect(() => {
+    localStorage.setItem('chat_diagnosis', JSON.stringify(currentDiagnosis))
+  }, [currentDiagnosis])
+
+  useEffect(() => {
+    localStorage.setItem('chat_is_open', isOpen)
+  }, [isOpen])
+
+  useEffect(() => {
+    localStorage.setItem('chat_messages', JSON.stringify(messages))
+  }, [messages])
 
   const setDiagnosis = useCallback((diagnosis) => {
     setCurrentDiagnosis(diagnosis)
@@ -39,7 +58,9 @@ export function ChatProvider({ children }) {
         setIsOpen,
         toggleChat,
         shouldGetAdvice,
-        markAdviceRequested
+        markAdviceRequested,
+        messages,
+        setMessages
       }}
     >
       {children}

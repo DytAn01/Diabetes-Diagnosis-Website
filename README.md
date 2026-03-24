@@ -142,7 +142,7 @@ ollama serve
 ### Bước 3: Tải model (ví dụ)
 
 ```bash
-ollama pull mistral
+ollama pull qwen2.5:0.5b
 ```
 
 Khi Ollama chưa chạy, chatbot sẽ báo không khả dụng (đây là hành vi bình thường).

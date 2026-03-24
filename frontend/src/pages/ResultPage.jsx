@@ -1,4 +1,18 @@
 import { useLocation, Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { 
+  ShieldAlert, 
+  ShieldCheck, 
+  ArrowLeft, 
+  History, 
+  ClipboardCheck,
+  Heart,
+  Activity,
+  MessageSquare,
+  AlertTriangle,
+  ChevronRight,
+  Sparkles
+} from 'lucide-react'
 import RiskBadge from '../components/RiskBadge'
 
 export default function ResultPage() {
@@ -7,79 +21,159 @@ export default function ResultPage() {
 
   if (prediction === undefined) {
     return (
-      <div className="text-center">
-        <p className="text-gray-600 mb-4">Không có dữ liệu chẩn đoán</p>
-        <Link to="/diagnosis" className="text-blue-600 hover:underline">
-          Quay lại biểu mẫu chẩn đoán
+      <div className="max-w-md mx-auto text-center py-20 space-y-6">
+        <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto text-slate-400">
+          <AlertTriangle size={40} />
+        </div>
+        <h2 className="text-2xl font-black text-slate-900">Không tìm thấy dữ liệu</h2>
+        <p className="text-slate-500 font-medium italic">Không thể lấy kết quả chẩn đoán từ phiên làm việc hiện tại.</p>
+        <Link 
+          to="/diagnosis" 
+          className="inline-flex items-center gap-2 text-teal-600 font-bold hover:underline"
+        >
+          <ArrowLeft size={16} /> Quay lại trang đánh giá
         </Link>
       </div>
     )
   }
 
+  const isHighRisk = prediction === 1;
+
   return (
-    <div className="max-w-2xl mx-auto">
-      <h1 className="text-3xl font-bold mb-8 text-center">Kết quả Chẩn đoán</h1>
-
-      <RiskBadge prediction={prediction} probability={probability} />
-
-      <div className="mt-8 bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold mb-4">Tóm tắt Kết quả</h2>
-        <p className="text-lg text-gray-700 mb-4">{message}</p>
-
-        <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg mb-6">
-          <h3 className="font-bold mb-2">⚠️ Thông báo Quan trọng</h3>
-          <p className="text-gray-700">
-            Dự đoán này dựa trên mô hình học máy và không nên được coi là chẩn đoán y tế. 
-            Vui lòng tư vấn với bác sĩ chuyên khoa để được đánh giá y tế chính xác và điều trị.
-          </p>
-        </div>
-
-        {prediction === 1 && (
-          <div className="bg-red-50 border border-red-200 p-4 rounded-lg mb-6">
-            <h3 className="font-bold text-red-700 mb-2">🏥 Các Hành động Được Khuyến nghị</h3>
-            <ul className="text-gray-700 space-y-2">
-              <li>• Lên lịch khám với bác sĩ của bạn</li>
-              <li>• Làm xét nghiệm sàng lọc tiểu đường đầy đủ</li>
-              <li>• Tìm hiểu về phòng ngừa và quản lý tiểu đường</li>
-              <li>• Theo dõi nồng độ đường huyết thường xuyên</li>
-            </ul>
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="max-w-4xl mx-auto space-y-12 pb-20"
+    >
+      {/* Header */}
+      <header className="text-center space-y-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-slate-200">
+            <ClipboardCheck size={12} /> Báo cáo chẩn đoán đã tạo
           </div>
+          <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight">Kết quả phân tích lâm sàng</h1>
+      </header>
+
+      {/* Probability Gauge Section */}
+      <section className="relative glass-card p-12 rounded-[48px] border-white overflow-hidden shadow-2xl">
+        <div className="absolute top-0 right-0 p-12 opacity-5">
+           {isHighRisk ? <ShieldAlert size={200} /> : <ShieldCheck size={200} />}
+        </div>
+        
+        <div className="flex flex-col items-center space-y-8 relative z-10">
+           <RiskBadge prediction={prediction} probability={probability} />
+           
+           <div className="max-w-2xl text-center">
+               <p className="text-2xl font-bold text-slate-800 leading-snug">
+               {message}
+             </p>
+           </div>
+        </div>
+      </section>
+
+      {/* Actionable Insights Grid */}
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Recommendation Cards */}
+        {isHighRisk && (
+          <motion.div 
+            initial={{ x: -20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="glass-card p-10 rounded-[40px] border-red-100 bg-red-50/30 space-y-6"
+          >
+            <div className="flex items-center gap-4 text-red-600">
+              <Activity size={24} />
+              <h3 className="text-xl font-black uppercase tracking-tight">Quy trình lâm sàng</h3>
+            </div>
+            <ul className="space-y-4">
+              {[
+                "Lên lịch khám ưu tiên với bác sĩ Nội tiết.",
+                "Thực hiện xét nghiệm HbA1c và Glucose lúc đói đầy đủ.",
+                "Bắt đầu theo dõi đường huyết hàng ngày.",
+                "Xem xét can thiệp lối sống ngay lập tức cho nhóm nguy cơ cao."
+              ].map((item, i) => (
+                <li key={i} className="flex gap-3 text-sm text-red-900/70 font-medium leading-relaxed">
+                  <ChevronRight size={14} className="mt-1 shrink-0 text-red-400" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </motion.div>
         )}
 
-        <div className="bg-green-50 border border-green-200 p-4 rounded-lg mb-6">
-          <h3 className="font-bold text-green-700 mb-2">💪 Lời Khuyên Sức khỏe</h3>
-          <ul className="text-gray-700 space-y-2">
-            <li>• Duy trì chế độ ăn uống lành mạnh với dinh dưỡng cân bằng</li>
-            <li>• Tập thể dục thường xuyên ít nhất 150 phút mỗi tuần</li>
-            <li>• Duy trì cân nặng lành mạnh</li>
-            <li>• Kiểm tra sức khỏe thường xuyên</li>
+        <motion.div 
+          initial={{ x: 20, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="glass-card p-10 rounded-[40px] border-teal-100 bg-teal-50/30 space-y-6"
+        >
+          <div className="flex items-center gap-4 text-teal-600">
+            <Heart size={24} />
+            <h3 className="text-xl font-black uppercase tracking-tight">Hướng dẫn sức khỏe</h3>
+          </div>
+          <ul className="space-y-4">
+            {[
+              "Duy trì chế độ ăn ít đường, nhiều chất xơ.",
+              "Tập aerobic vừa phải ít nhất 150 phút mỗi tuần.",
+              "Ưu tiên ngủ 7-9 tiếng để cân bằng nội tiết.",
+              "Khám theo dõi chuyển hóa hai lần một năm."
+            ].map((item, i) => (
+              <li key={i} className="flex gap-3 text-sm text-teal-900/70 font-medium leading-relaxed">
+                <ChevronRight size={14} className="mt-1 shrink-0 text-teal-400" />
+                {item}
+              </li>
+            ))}
           </ul>
-        </div>
+        </motion.div>
+      </section>
 
-        <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-6">
-          <h3 className="font-bold text-blue-700 mb-2">💬 Nhận Lời Khuyên Từ AI</h3>
-          <p className="text-gray-700 mb-3">
-            Bấm nút chat bên phải dưới để mở trợ lý sức khỏe AI. Nó sẽ tự động phân tích kết quả chẩn đoán 
-            của bạn và đưa ra lời khuyên cụ thể!
-          </p>
-          <p className="text-sm text-blue-600 font-semibold">💡 Mẹo: Bạn có thể hỏi thêm các câu hỏi về sức khỏe, độc lập với chẩn đoán này.</p>
+      {/* AI Assistant Callout */}
+      {/* <section className="relative group p-10 rounded-[40px] bg-slate-900 text-white overflow-hidden shadow-2xl">
+        <div className="absolute inset-0 bg-gradient-to-br from-teal-500/20 to-blue-500/20 opacity-50 group-hover:opacity-70 transition-opacity" />
+        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 text-center md:text-left">
+           <div className="space-y-4 max-w-xl">
+             <div className="inline-flex items-center gap-2 text-teal-400 text-[10px] font-black uppercase tracking-widest">
+               <Sparkles size={12} /> Tư vấn AI tự động
+             </div>
+             <h3 className="text-3xl font-black tracking-tight">Phân tích chi tiết kết quả</h3>
+             <p className="text-slate-400 font-medium leading-relaxed">
+               Trợ lý AI lâm sàng đang phân tích các chỉ số của bạn. Mở cửa sổ chat bảo mật để thảo luận các điều chỉnh lối sống và chế độ ăn cá nhân hóa.
+             </p>
+           </div>
+           
+           <div className="flex items-center py-4">
+              <div className="p-4 bg-teal-500 text-slate-900 rounded-3xl font-black text-sm uppercase tracking-widest flex items-center gap-2 group-hover:scale-105 transition-transform duration-500">
+                <MessageSquare size={18} /> Chat with AI
+              </div>
+           </div>
         </div>
-      </div>
+      </section> */}
 
-      <div className="mt-6 flex gap-4 justify-center mb-8">
+      {/* Warnings & Disclaimer */}
+      <section className="bg-amber-50/50 border border-amber-100 p-8 rounded-[32px] flex gap-6 text-amber-900">
+         <AlertTriangle className="w-8 h-8 text-amber-500 shrink-0" />
+            <div className="space-y-2">
+            <h4 className="text-sm font-black uppercase tracking-widest">Lưu ý y tế</h4>
+            <p className="text-xs font-medium leading-relaxed opacity-80 italic">
+              Các tỉ lệ và dự đoán ở đây được tính bằng mô hình học máy xác suất. Chỉ dùng để sàng lọc và không thay thế chẩn đoán chính thức. Mọi kết luận lâm sàng cần được bác sĩ có giấy phép xác minh.
+            </p>
+         </div>
+      </section>
+
+      {/* Navigation Footer */}
+      <footer className="flex items-center justify-center gap-8">
         <Link 
           to="/history" 
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+          className="flex items-center gap-2 text-slate-400 hover:text-slate-900 text-xs font-black uppercase tracking-widest transition-colors"
         >
-          Xem Lịch sử
+          <History size={16} /> Lưu trữ phân tích
         </Link>
         <Link 
           to="/diagnosis" 
-          className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700"
+          className="flex items-center gap-3 bg-white border-2 border-slate-100 hover:border-teal-500/20 px-8 py-4 rounded-2xl text-slate-900 text-xs font-black uppercase tracking-widest transition-all hover:bg-slate-50 active:scale-95"
         >
-          Chẩn đoán Mới
+          Đánh giá mới <ChevronRight size={14} />
         </Link>
-      </div>
-    </div>
+      </footer>
+    </motion.div>
   )
 }

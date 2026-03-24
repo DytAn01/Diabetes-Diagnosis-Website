@@ -108,6 +108,25 @@ def get_health_advice():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@chat_bp.route('/health-advice-stream', methods=['POST'])
+@jwt_required()
+def get_health_advice_stream():
+    """Get health advice based on diagnosis result (streaming)"""
+    data = request.get_json()
+    diagnosis = data.get('diagnosis', {})
+    probability = data.get('probability', 0)
+    
+    prompt = chat_service.generate_health_advice(diagnosis, probability)
+    
+    def generate():
+        try:
+            for chunk in chat_service.stream_message(prompt):
+                yield f"data: {chunk}\n\n"
+        except Exception as e:
+            yield f"data: ❌ Lỗi: {str(e)}\n\n"
+            
+    return Response(generate(), mimetype='text/event-stream')
+
 @chat_bp.route('/clear', methods=['POST'])
 @jwt_required()
 def clear_chat():
