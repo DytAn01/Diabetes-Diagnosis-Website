@@ -22,6 +22,9 @@ export default function Navbar() {
               <Link to="/history" className="hover:bg-blue-700 px-3 py-2 rounded">
                 Lịch sử
               </Link>
+              <Link to="/tracker" className="hover:bg-blue-700 px-3 py-2 rounded">
+                Theo dõi
+              </Link>
               <button 
                 onClick={logout}
                 className="hover:bg-blue-700 px-3 py-2 rounded"

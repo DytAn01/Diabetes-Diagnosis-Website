@@ -7,6 +7,7 @@
 - Đăng ký / đăng nhập người dùng (JWT)
 - Dự đoán nguy cơ tiểu đường từ chỉ số sức khỏe
 - Lưu lịch sử chẩn đoán
+- **Health Tracker**: Theo dõi chỉ số sức khỏe theo thời gian với biểu đồ xu hướng
 - Xem bài viết kiến thức sức khỏe
 - Chatbot AI tư vấn theo ngữ cảnh kết quả chẩn đoán
 - Giao diện React + Tailwind responsive
@@ -32,6 +33,7 @@
 - React Router
 - Axios
 - Tailwind CSS
+- Chart.js + react-chartjs-2 (biểu đồ)
 
 ## Yêu cầu môi trường
 
@@ -126,6 +128,32 @@ python ml/train.py
 
 Model sẽ được lưu trong thư mục `backend/ml/models/`.
 
+## Health Tracker - Theo dõi chỉ số sức khỏe
+
+Tính năng Health Tracker giúp bạn theo dõi các chỉ số sức khỏe theo thời gian:
+
+### Cách sử dụng:
+1. **Thực hiện chẩn đoán định kỳ**: Mỗi lần chẩn đoán, một record mới sẽ được lưu lại với các chỉ số
+2. **Truy cập Health Tracker**: Vào menu "Theo dõi" (hoặc `/tracker`) trong ứng dụng
+3. **Xem biểu đồ**: Hệ thống hiển thị biểu đồ xu hướng cho:
+   - **Glucose**: Đường huyết (mg/dL)
+   - **BMI**: Chỉ số khối cơ thể (kg/m²)
+   - **Blood Pressure**: Huyết áp (mmHg)
+   - **Insulin**: Insulin (µU/ml)
+   - **Risk Score**: Điểm nguy cơ tiểu đường
+
+### Thống kê hiển thị:
+Mỗi chỉ số hiển thị:
+- **Current**: Giá trị hiện tại (lần chẩn đoán gần nhất)
+- **Average**: Giá trị trung bình (toàn bộ lịch sử)
+- **Min/Max**: Giá trị thấp nhất và cao nhất
+- **Trend**: Xu hướng (Improving 📈 / Stable ➡️ / Worsening 📉)
+
+### API endpoint:
+- `GET /api/records/tracker/stats` (JWT required)
+  - Trả về dữ liệu time series cho tất cả chỉ số
+  - Bao gồm thống kê (min, max, avg, trend)
+
 ## Chatbot AI với Ollama (tuỳ chọn)
 
 Ứng dụng có API chatbot tại `backend/app/routes/chat.py`.
@@ -161,6 +189,7 @@ Khi Ollama chưa chạy, chatbot sẽ báo không khả dụng (đây là hành 
 - `GET /api/records/`
 - `GET /api/records/<id>`
 - `DELETE /api/records/<id>`
+- `GET /api/records/tracker/stats` (Health Tracker)
 
 ### Articles
 - `GET /api/articles/`
