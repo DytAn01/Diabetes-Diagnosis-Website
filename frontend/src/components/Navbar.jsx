@@ -51,6 +51,7 @@ export default function Navbar() {
           <Link to="/articles" className={linkClass('/articles')}>Bài viết</Link>
           <Link to="/diagnosis" className={linkClass('/diagnosis')}>Chẩn đoán</Link>
           <Link to="/history" className={linkClass('/history')}>Lịch sử</Link>
+          <Link to="/tracker" className={linkClass('/tracker')}>Theo dõi sức khỏe</Link>
         </div>
 
         <div className="hidden md:flex items-center gap-4">
@@ -74,6 +75,7 @@ export default function Navbar() {
           <Link to="/articles" onClick={() => setOpen(false)} className="px-3 py-2 rounded hover:bg-white/5 transition">Bài viết</Link>
           <Link to="/diagnosis" onClick={() => setOpen(false)} className="px-3 py-2 rounded hover:bg-white/5 transition">Chẩn đoán</Link>
           <Link to="/history" onClick={() => setOpen(false)} className="px-3 py-2 rounded hover:bg-white/5 transition">Lịch sử</Link>
+          <Link to="/tracker" onClick={() => setOpen(false)} className="px-3 py-2 rounded hover:bg-white/5 transition">Theo dõi sức khỏe</Link>
           <div className="pt-2 border-t border-white/5 flex gap-2">
             {isAuthenticated ? (
               <button onClick={() => { logout(); setOpen(false); }} className="flex-1 px-3 py-2 bg-white/10 rounded">Đăng xuất</button>
