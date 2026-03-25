@@ -51,7 +51,6 @@ def delete_record(record_id):
     db.session.commit()
     
     return jsonify({'message': 'Record deleted successfully'}), 200
-
 @records_bp.route('/tracker/stats', methods=['GET'])
 @jwt_required()
 def get_health_tracker():
@@ -64,7 +63,16 @@ def get_health_tracker():
     ).all()
     
     if not records:
-        return jsonify({'error': 'No records found'}), 404
+        # Return empty data instead of error
+        return jsonify({
+            'dates': [],
+            'glucose': {'data': [], 'stats': {'min': 0, 'max': 0, 'avg': 0, 'current': 0}, 'unit': 'mg/dL'},
+            'bmi': {'data': [], 'stats': {'min': 0, 'max': 0, 'avg': 0, 'current': 0}, 'unit': 'kg/m²'},
+            'blood_pressure': {'data': [], 'stats': {'min': 0, 'max': 0, 'avg': 0, 'current': 0}, 'unit': 'mmHg'},
+            'insulin': {'data': [], 'stats': {'min': 0, 'max': 0, 'avg': 0, 'current': 0}, 'unit': 'µU/ml'},
+            'risk_score': {'data': [], 'stats': {'min': 0, 'max': 0, 'avg': 0, 'current': 0}, 'unit': 'score'},
+            'total_records': 0
+        }), 200
     
     # Extract time series data
     dates = []

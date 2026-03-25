@@ -1,5 +1,9 @@
 import os
 from datetime import timedelta
+from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).resolve().parent.parent / '.env')
 
 class Config:
     """Base configuration"""
@@ -14,10 +18,7 @@ class Config:
 class DevelopmentConfig(Config):
     """Development configuration"""
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = os.getenv(
-        'DATABASE_URL',
-        'sqlite:///diabetes_diagnosis.db'
-    )
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'mysql+pymysql://root:password@localhost:3306/diabetes_db')
     SQLALCHEMY_ECHO = True
 
 class ProductionConfig(Config):
@@ -28,7 +29,7 @@ class ProductionConfig(Config):
 class TestingConfig(Config):
     """Testing configuration"""
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    SQLALCHEMY_DATABASE_URI = os.getenv('TEST_DATABASE_URL', 'mysql+pymysql://root:password@localhost:3306/diabetes_test_db')
 
 config = {
     'development': DevelopmentConfig,

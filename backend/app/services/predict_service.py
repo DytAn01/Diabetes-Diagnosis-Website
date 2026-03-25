@@ -19,21 +19,21 @@ class PredictService:
         try:
             if os.path.exists(model_path):
                 self.model = joblib.load(model_path)
-                print(f"✅ Model loaded: {type(self.model).__name__}")
+                print(f"[OK] Model loaded: {type(self.model).__name__}")
             else:
-                print(f"⚠️ Model file not found at {model_path}")
+                print(f"[WARNING] Model file not found at {model_path}")
                 
             if os.path.exists(feature_names_path):
                 self.feature_names = joblib.load(feature_names_path)
-                print(f"✅ Features loaded: {self.feature_names}")
+                print(f"[OK] Features loaded: {self.feature_names}")
             else:
-                print(f"⚠️ Feature names not found. Using default order.")
+                print(f"[WARNING] Feature names not found. Using default order.")
                 self.feature_names = [
                     'Pregnancies', 'Glucose', 'BloodPressure', 'SkinThickness',
                     'Insulin', 'BMI', 'DiabetesPedigreeFunction', 'Age'
                 ]
         except Exception as e:
-            print(f"❌ Error loading model: {e}")
+            print(f"[ERROR] Error loading model: {e}")
     
     def preprocess(self, data):
         """Preprocess input data - handles zero values like training did"""
@@ -84,7 +84,7 @@ class PredictService:
     def predict(self, data):
         """Make prediction"""
         if not self.model:
-            raise Exception("❌ Model not loaded. Please train the model first by running: python ml/train.py")
+            raise Exception("Model not loaded. Please train the model first by running: python ml/train.py")
         
         try:
             X = self.preprocess(data)
@@ -95,7 +95,7 @@ class PredictService:
             probability = float(probabilities[1])  # Probability of diabetes (class 1)
             
             # Debug output
-            print(f"🔍 Prediction debug:")
+            print("Prediction debug:")
             print(f"   Input features: {data}")
             print(f"   Processed: {X[0]}")
             print(f"   Raw probabilities: {probabilities}")
@@ -105,5 +105,5 @@ class PredictService:
             return int(prediction), probability
             
         except Exception as e:
-            print(f"❌ Error during prediction: {e}")
+            print(f"Error during prediction: {e}")
             raise Exception(f"Prediction error: {str(e)}")
