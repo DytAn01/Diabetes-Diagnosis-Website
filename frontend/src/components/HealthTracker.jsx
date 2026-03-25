@@ -50,20 +50,23 @@ function HealthTracker() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      <div className="glass-card rounded-[32px] p-12 flex items-center justify-center min-h-[260px] border-white/70">
+        <div className="text-center space-y-3">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-500 mx-auto"></div>
+          <p className="text-slate-500 font-medium">Đang tải dữ liệu theo dõi...</p>
+        </div>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+      <div className="glass-card border-2 border-red-200/70 rounded-[32px] p-8 text-center bg-red-50/40">
         <AlertCircle className="w-12 h-12 mx-auto text-red-500 mb-3" />
-        <p className="text-red-700">{error}</p>
+        <p className="text-red-700 font-medium">{error}</p>
         <button
           onClick={fetchTrackerData}
-          className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          className="mt-5 px-5 py-2.5 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 transition"
         >
           Thử lại
         </button>
@@ -73,15 +76,15 @@ function HealthTracker() {
 
   if (!trackerData || trackerData.total_records === 0) {
     return (
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-12 text-center">
+      <div className="glass-card border-2 border-blue-200/70 rounded-[32px] p-12 text-center bg-blue-50/40">
         <Activity className="w-16 h-16 mx-auto text-blue-400 mb-4" />
-        <h3 className="text-2xl font-bold text-blue-900 mb-2">Chưa có lịch sử chẩn đoán</h3>
-        <p className="text-blue-700 mb-6">
+        <h3 className="text-2xl font-black text-blue-900 mb-2">Chưa có lịch sử chẩn đoán</h3>
+        <p className="text-blue-700 mb-6 font-medium">
           Bạn chưa thực hiện bất kỳ chẩn đoán nào. Hãy bắt đầu với lần chẩn đoán đầu tiên để theo dõi sức khỏe của bạn.
         </p>
         <a
           href="/diagnosis"
-          className="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
+          className="inline-block px-7 py-3 bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-black rounded-2xl hover:from-teal-700 hover:to-cyan-700 transition"
         >
           Bắt đầu chẩn đoán ngay
         </a>
@@ -95,7 +98,14 @@ function HealthTracker() {
     plugins: {
       legend: {
         display: true,
-        position: 'top'
+        position: 'top',
+        labels: {
+          color: '#334155',
+          font: {
+            family: 'Be Vietnam Pro',
+            weight: 600
+          }
+        }
       },
       title: {
         display: true,
@@ -105,11 +115,17 @@ function HealthTracker() {
     scales: {
       y: {
         beginAtZero: true,
+        ticks: {
+          color: '#64748b'
+        },
         grid: {
-          color: 'rgba(0, 0, 0, 0.05)'
+          color: 'rgba(15, 23, 42, 0.08)'
         }
       },
       x: {
+        ticks: {
+          color: '#64748b'
+        },
         grid: {
           display: false
         }
@@ -133,33 +149,33 @@ function HealthTracker() {
   }
 
   const StatCard = ({ metric, stats, unit }) => (
-    <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-      <div className="flex items-center justify-between mb-3">
-        <h4 className="font-semibold text-gray-700">{metric}</h4>
+    <div className="glass-card border-white/60 rounded-[24px] p-5">
+      <div className="flex items-center justify-between mb-4">
+        <h4 className="font-black text-slate-700 uppercase tracking-wide text-sm">{metric}</h4>
         {getTrendIcon(stats.trend)}
       </div>
-      <div className="space-y-2">
+      <div className="space-y-3">
         <div>
-          <p className="text-xs text-gray-500">Hiện tại</p>
-          <p className="text-2xl font-bold text-gray-900">
-            {stats.current?.toFixed(1) || 'N/A'} <span className="text-sm text-gray-600">{unit}</span>
+          <p className="text-[11px] text-slate-500 font-semibold uppercase tracking-wide">Hiện tại</p>
+          <p className="text-3xl font-black text-slate-900 leading-tight">
+            {stats.current?.toFixed(1) || 'N/A'} <span className="text-sm text-slate-500">{unit}</span>
           </p>
         </div>
-        <div className="grid grid-cols-3 gap-2 pt-2 border-t">
+        <div className="grid grid-cols-3 gap-2 pt-3 border-t border-slate-200/70">
           <div>
-            <p className="text-xs text-gray-500">Trung bình</p>
-            <p className="text-sm font-semibold text-gray-700">{stats.avg?.toFixed(1) || 'N/A'}</p>
+            <p className="text-[11px] text-slate-500">TB</p>
+            <p className="text-sm font-bold text-slate-700">{stats.avg?.toFixed(1) || 'N/A'}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Tối thiểu</p>
-            <p className="text-sm font-semibold text-gray-700">{stats.min?.toFixed(1) || 'N/A'}</p>
+            <p className="text-[11px] text-slate-500">Min</p>
+            <p className="text-sm font-bold text-slate-700">{stats.min?.toFixed(1) || 'N/A'}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Tối đa</p>
-            <p className="text-sm font-semibold text-gray-700">{stats.max?.toFixed(1) || 'N/A'}</p>
+            <p className="text-[11px] text-slate-500">Max</p>
+            <p className="text-sm font-bold text-slate-700">{stats.max?.toFixed(1) || 'N/A'}</p>
           </div>
         </div>
-        <div className={`text-sm font-medium pt-2 ${getTrendColor(stats.trend)}`}>
+        <div className={`text-sm font-bold pt-1 ${getTrendColor(stats.trend)}`}>
           {stats.trend === 'improving' && '📈 Đang cải thiện'}
           {stats.trend === 'worsening' && '📉 Đang xấu đi'}
           {stats.trend === 'stable' && '➡️ Ổn định'}
@@ -270,7 +286,6 @@ function HealthTracker() {
 
   return (
     <div className="space-y-8">
-      {/* Summary Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard 
           metric="Glucose" 
@@ -299,42 +314,35 @@ function HealthTracker() {
         />
       </div>
 
-      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Glucose Chart */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-          <h3 className="text-lg font-semibold mb-4 text-gray-900">Xu hướng Glucose</h3>
+        <div className="glass-card rounded-[28px] border-white/60 p-6">
+          <h3 className="text-lg font-black mb-4 text-slate-900">Xu hướng Glucose</h3>
           <Line data={glucoseChart} options={chartOptions} />
         </div>
 
-        {/* BMI Chart */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-          <h3 className="text-lg font-semibold mb-4 text-gray-900">Xu hướng BMI</h3>
+        <div className="glass-card rounded-[28px] border-white/60 p-6">
+          <h3 className="text-lg font-black mb-4 text-slate-900">Xu hướng BMI</h3>
           <Line data={bmiChart} options={chartOptions} />
         </div>
 
-        {/* Blood Pressure Chart */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-          <h3 className="text-lg font-semibold mb-4 text-gray-900">Xu hướng Huyết áp</h3>
+        <div className="glass-card rounded-[28px] border-white/60 p-6">
+          <h3 className="text-lg font-black mb-4 text-slate-900">Xu hướng Huyết áp</h3>
           <Line data={bloodPressureChart} options={chartOptions} />
         </div>
 
-        {/* Insulin Chart */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-          <h3 className="text-lg font-semibold mb-4 text-gray-900">Xu hướng Insulin</h3>
+        <div className="glass-card rounded-[28px] border-white/60 p-6">
+          <h3 className="text-lg font-black mb-4 text-slate-900">Xu hướng Insulin</h3>
           <Line data={insulinChart} options={chartOptions} />
         </div>
 
-        {/* Risk Score Chart */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm lg:col-span-2">
-          <h3 className="text-lg font-semibold mb-4 text-gray-900">Xu hướng Điểm rủi ro</h3>
+        <div className="glass-card rounded-[28px] border-white/60 p-6 lg:col-span-2">
+          <h3 className="text-lg font-black mb-4 text-slate-900">Xu hướng Điểm rủi ro</h3>
           <Line data={riskScoreChart} options={chartOptions} />
         </div>
       </div>
 
-      {/* Records Info */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <p className="text-blue-800">
+      <div className="glass-card rounded-[24px] border border-teal-100 bg-teal-50/50 p-5">
+        <p className="text-teal-900 font-medium">
           📊 <strong>{trackerData.total_records}</strong> bản ghi sức khỏe được theo dõi. 
           Tiếp tục ghi lại các chỉ số sức khỏe của bạn thường xuyên để theo dõi tiến độ.
         </p>

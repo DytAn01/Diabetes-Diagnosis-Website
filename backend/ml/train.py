@@ -159,9 +159,9 @@ def train_model():
     with open(os.path.join(models_path, 'model_metadata.json'), 'w') as f:
         json.dump(metadata, f, indent=2)
     
-    print(f"\n✅ Model saved to {models_path}")
-    print(f"✅ Features: {feature_names}")
-    print(f"✅ Training complete!")
+    print(f"\n Model saved to {models_path}")
+    print(f" Features: {feature_names}")
+    print(f" Training complete!")
 
 if __name__ == '__main__':
     train_model()

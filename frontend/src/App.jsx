@@ -12,6 +12,7 @@ import ResultPage from './pages/ResultPage'
 import HistoryPage from './pages/HistoryPage'
 import ArticlesPage from './pages/ArticlesPage'
 import HealthTrackerPage from './pages/HealthTrackerPage'
+import AccountPage from './pages/AccountPage'
 import PrivateRoute from './components/PrivateRoute'
 
 function App() {
@@ -44,6 +45,10 @@ function App() {
                 <Route 
                   path="/tracker" 
                   element={<PrivateRoute><HealthTrackerPage /></PrivateRoute>} 
+                />
+                <Route
+                  path="/account"
+                  element={<PrivateRoute><AccountPage /></PrivateRoute>}
                 />
               </Routes>
             </main>

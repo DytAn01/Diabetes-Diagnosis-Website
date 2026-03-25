@@ -84,7 +84,7 @@ class PredictService:
     def predict(self, data):
         """Make prediction"""
         if not self.model:
-            raise Exception("❌ Model not loaded. Please train the model first by running: python ml/train.py")
+            raise Exception("Model not loaded. Please train the model first by running: python ml/train.py")
         
         try:
             X = self.preprocess(data)
@@ -95,7 +95,7 @@ class PredictService:
             probability = float(probabilities[1])  # Probability of diabetes (class 1)
             
             # Debug output
-            print(f"🔍 Prediction debug:")
+            print("Prediction debug:")
             print(f"   Input features: {data}")
             print(f"   Processed: {X[0]}")
             print(f"   Raw probabilities: {probabilities}")
@@ -105,5 +105,5 @@ class PredictService:
             return int(prediction), probability
             
         except Exception as e:
-            print(f"❌ Error during prediction: {e}")
+            print(f"Error during prediction: {e}")
             raise Exception(f"Prediction error: {str(e)}")

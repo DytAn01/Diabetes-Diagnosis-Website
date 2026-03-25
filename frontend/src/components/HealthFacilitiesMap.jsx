@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import axiosClient from '../api/axiosClient'
@@ -30,33 +30,93 @@ export default function HealthFacilitiesMap() {
   const [facilities, setFacilities] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [notice, setNotice] = useState(null)
   const [userLocation, setUserLocation] = useState(null)
   const [mapCenter, setMapCenter] = useState([10.7769, 106.7009]) // Default: Ho Chi Minh City
   const [radius, setRadius] = useState(5)
+  const watchIdRef = useRef(null)
+  const lastFetchRef = useRef({ latitude: null, longitude: null, timestamp: 0 })
 
   useEffect(() => {
-    // Get user's geolocation
+    const shouldFetchFacilities = (latitude, longitude) => {
+      const { latitude: prevLat, longitude: prevLon, timestamp } = lastFetchRef.current
+
+      if (prevLat === null || prevLon === null) {
+        return true
+      }
+
+      const movedDistance = calculateDistance(prevLat, prevLon, latitude, longitude)
+      const elapsedMs = Date.now() - timestamp
+      return movedDistance >= 0.2 || elapsedMs >= 30000
+    }
+
+    const onPositionSuccess = (position) => {
+      const { latitude, longitude } = position.coords
+      setUserLocation({ latitude, longitude })
+      setMapCenter([latitude, longitude])
+      setError(null)
+
+      if (shouldFetchFacilities(latitude, longitude)) {
+        lastFetchRef.current = { latitude, longitude, timestamp: Date.now() }
+        fetchNearbyFacilities(latitude, longitude, radius)
+      }
+    }
+
+    const onPositionError = (geoError) => {
+      console.warn('Geolocation error:', geoError)
+      setError('Không thể truy cập vị trí GPS. Đang dùng vị trí mặc định (TP. Hồ Chí Minh).')
+      fetchNearbyFacilities(10.7769, 106.7009, radius)
+    }
+
+    // Get user's geolocation in real-time
     if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords
-          setUserLocation({ latitude, longitude })
-          setMapCenter([latitude, longitude])
-          fetchNearbyFacilities(latitude, longitude, radius)
-        },
-        (error) => {
-          console.warn('Geolocation error:', error)
-          setError('Could not access your location. Using default location (Ho Chi Minh City).')
-          // Use default location
-          fetchNearbyFacilities(10.7769, 106.7009, radius)
-        }
-      )
+      navigator.geolocation.getCurrentPosition(onPositionSuccess, onPositionError, {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 5000
+      })
+
+      watchIdRef.current = navigator.geolocation.watchPosition(onPositionSuccess, onPositionError, {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 5000
+      })
     } else {
-      setError('Geolocation is not supported by your browser.')
+      setError('Trình duyệt của bạn không hỗ trợ định vị GPS.')
       // Use default location
       fetchNearbyFacilities(10.7769, 106.7009, radius)
     }
-  }, [])
+
+    return () => {
+      if (watchIdRef.current !== null && 'geolocation' in navigator) {
+        navigator.geolocation.clearWatch(watchIdRef.current)
+      }
+    }
+  }, [radius])
+
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371
+    const dLat = (lat2 - lat1) * (Math.PI / 180)
+    const dLon = (lon2 - lon1) * (Math.PI / 180)
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2)
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+    return R * c
+  }
+
+  const normalizeAndSortFacilities = (items, lat, lon) => {
+    return items
+      .map((facility) => {
+        const distance = calculateDistance(lat, lon, facility.latitude, facility.longitude)
+        return {
+          ...facility,
+          distance: Number(distance.toFixed(2))
+        }
+      })
+      .sort((a, b) => a.distance - b.distance)
+  }
 
   const fetchNearbyFacilities = async (lat, lon, radiusKm) => {
     try {
@@ -69,34 +129,36 @@ export default function HealthFacilitiesMap() {
       })
 
       if (response.data.success && response.data.facilities && response.data.facilities.length > 0) {
-        setFacilities(response.data.facilities)
+        const sortedFacilities = normalizeAndSortFacilities(response.data.facilities, lat, lon)
+        setFacilities(sortedFacilities)
         setError(null)
+        setNotice(null)
       } else {
         // If no facilities found, use fallback data
         const fallbackFacilities = getFallbackFacilities(lat, lon)
         setFacilities(fallbackFacilities)
-        setError(response.data.message || 'Using nearby facilities from database')
+        setError(null)
+        setNotice('Không lấy được dữ liệu trực tuyến. Đang hiển thị cơ sở y tế gợi ý gần bạn.')
       }
     } catch (err) {
       console.error('Error fetching facilities:', err)
       // Use fallback data on error
       const fallbackFacilities = getFallbackFacilities(lat, lon)
       setFacilities(fallbackFacilities)
-      setError('Showing nearby hospitals and clinics from local database')
+      setError(null)
+      setNotice('Dịch vụ cơ sở y tế trực tuyến đang gián đoạn. Đang hiển thị cơ sở y tế gợi ý gần bạn.')
     } finally {
       setLoading(false)
     }
   }
 
   const getFallbackFacilities = (lat, lon) => {
-    // Fallback hospitals and clinics in Vietnam
-    return [
+    const fallbackFacilities = [
       {
         name: 'Bệnh viện Chợ Rẫy',
         type: 'Hospital',
         latitude: 10.7719,
         longitude: 106.6995,
-        distance: 0.6,
         phone: '(028) 3855 2000',
         website: 'https://www.choray.vn'
       },
@@ -105,7 +167,6 @@ export default function HealthFacilitiesMap() {
         type: 'Hospital',
         latitude: 10.8033,
         longitude: 106.6838,
-        distance: 2.8,
         phone: '(028) 3820 3415',
         website: 'https://www.gdh.gov.vn'
       },
@@ -114,7 +175,6 @@ export default function HealthFacilitiesMap() {
         type: 'Hospital',
         latitude: 10.7835,
         longitude: 106.7297,
-        distance: 2.1,
         phone: '(028) 3929 2000',
         website: ''
       },
@@ -123,7 +183,6 @@ export default function HealthFacilitiesMap() {
         type: 'Clinic',
         latitude: 10.8067,
         longitude: 106.7237,
-        distance: 3.2,
         phone: '(028) 3622 2888',
         website: 'https://www.medicare.vn'
       },
@@ -132,11 +191,12 @@ export default function HealthFacilitiesMap() {
         type: 'Clinic',
         latitude: 10.7719,
         longitude: 106.7019,
-        distance: 0.8,
         phone: '(028) 3825 1515',
         website: ''
       }
     ]
+
+    return normalizeAndSortFacilities(fallbackFacilities, lat, lon)
   }
 
   const handleRadiusChange = (e) => {
@@ -154,14 +214,20 @@ export default function HealthFacilitiesMap() {
     return clinicIcon
   }
 
+  const getFacilityTypeLabel = (type) => {
+    if (type === 'Hospital') return 'Bệnh viện'
+    if (type === 'Clinic') return 'Phòng khám'
+    return 'Cơ sở y tế'
+  }
+
   return (
-    <div className="w-full h-screen flex flex-col bg-white">
+    <div className="w-full h-screen flex flex-col bg-white relative z-0">
       {/* Header */}
       <div className="p-4 border-b border-gray-200">
-        <h2 className="text-2xl font-bold mb-3">🏥 Nearby Healthcare Facilities</h2>
+        <h2 className="text-2xl font-bold mb-3">🏥 Cơ sở y tế gần bạn nhất</h2>
         
         <div className="flex items-center gap-4">
-          <label htmlFor="radius" className="font-semibold">Search Radius:</label>
+          <label htmlFor="radius" className="font-semibold">Bán kính tìm kiếm:</label>
           <select
             id="radius"
             value={radius}
@@ -181,12 +247,17 @@ export default function HealthFacilitiesMap() {
             ⚠️ {error}
           </div>
         )}
+        {notice && (
+          <div className="bg-blue-50 border border-blue-200 p-3 rounded mt-3 text-sm text-blue-900">
+            ℹ️ {notice}
+          </div>
+        )}
       </div>
 
       {loading ? (
         <div className="flex items-center justify-center flex-1">
           <div className="text-center">
-            <p className="text-gray-600 mb-4">Loading map and facilities...</p>
+            <p className="text-gray-600 mb-4">Đang tải bản đồ và cơ sở y tế...</p>
             <div className="animate-spin inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
           </div>
         </div>
@@ -198,6 +269,7 @@ export default function HealthFacilitiesMap() {
               center={mapCenter}
               zoom={14}
               scrollWheelZoom={true}
+              className="z-0"
               style={{ height: '100%', width: '100%' }}
             >
               <TileLayer
@@ -210,7 +282,7 @@ export default function HealthFacilitiesMap() {
                 <Marker position={[userLocation.latitude, userLocation.longitude]} icon={userIcon}>
                   <Popup>
                     <div className="text-sm">
-                      <p className="font-bold">📍 Your Location</p>
+                      <p className="font-bold">📍 Vị trí của bạn (GPS thời gian thực)</p>
                       <p>{userLocation.latitude.toFixed(4)}, {userLocation.longitude.toFixed(4)}</p>
                     </div>
                   </Popup>
@@ -227,8 +299,8 @@ export default function HealthFacilitiesMap() {
                   <Popup>
                     <div className="text-sm">
                       <p className="font-bold">{facility.name}</p>
-                      <p className="text-gray-600">{facility.type}</p>
-                      <p className="text-blue-600 font-semibold">{facility.distance} km away</p>
+                      <p className="text-gray-600">{getFacilityTypeLabel(facility.type)}</p>
+                      <p className="text-blue-600 font-semibold">Cách bạn {facility.distance} km</p>
                       {facility.phone && (
                         <p>📞 {facility.phone}</p>
                       )}
@@ -239,7 +311,7 @@ export default function HealthFacilitiesMap() {
                           rel="noopener noreferrer"
                           className="text-blue-600 hover:underline"
                         >
-                          Visit Website
+                          Xem website
                         </a>
                       )}
                     </div>
@@ -253,11 +325,11 @@ export default function HealthFacilitiesMap() {
           <div className="w-2/5 overflow-y-auto bg-gray-50">
             <div className="p-4">
               <h3 className="text-lg font-bold mb-4 sticky top-0 bg-gray-50 pb-3">
-                📍 {facilities.length} Facilities Found
+                📍 {facilities.length} cơ sở y tế
               </h3>
 
               {facilities.length === 0 ? (
-                <p className="text-gray-600 text-center py-8">No facilities found in this area.</p>
+                <p className="text-gray-600 text-center py-8">Không tìm thấy cơ sở y tế trong khu vực này.</p>
               ) : (
                 <div className="space-y-3">
                   {facilities.map((facility, idx) => (
@@ -275,7 +347,7 @@ export default function HealthFacilitiesMap() {
                           </div>
                           
                           <p className="text-xs text-gray-500 mb-2">
-                            {facility.type} • <span className="text-blue-600 font-semibold">{facility.distance} km away</span>
+                            {getFacilityTypeLabel(facility.type)} • <span className="text-blue-600 font-semibold">{facility.distance} km</span>
                           </p>
 
                           {facility.phone && (
@@ -317,7 +389,7 @@ export default function HealthFacilitiesMap() {
                           rel="noopener noreferrer"
                           className="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700 whitespace-nowrap flex-shrink-0 mt-1"
                         >
-                          Direction
+                          Chỉ đường
                         </a>
                       </div>
                     </div>
@@ -327,8 +399,8 @@ export default function HealthFacilitiesMap() {
 
               <div className="mt-6 p-3 bg-blue-50 border border-blue-200 rounded text-xs text-gray-700">
                 <p>
-                  <strong>💡 Note:</strong> This map shows hospitals and clinics in your area. 
-                  Please consult with a healthcare provider for proper medical evaluation.
+                  <strong>💡 Lưu ý:</strong> Bản đồ hiển thị bệnh viện/phòng khám theo vị trí GPS thời gian thực của bạn và sắp xếp từ gần đến xa. 
+                  Vui lòng liên hệ bác sĩ để được đánh giá y khoa chính xác.
                 </p>
               </div>
             </div>

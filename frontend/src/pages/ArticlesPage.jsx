@@ -11,19 +11,38 @@ import {
   Heart,
   Activity,
   User,
-  AlertCircle
+  AlertCircle,
+  Plus
 } from 'lucide-react'
 import axiosClient from '../api/axiosClient'
+import { useAuth } from '../hooks/useAuth'
 
 export default function ArticlesPage() {
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'admin'
   const [articles, setArticles] = useState([])
+  const [categories, setCategories] = useState([])
   const [selectedArticle, setSelectedArticle] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [createLoading, setCreateLoading] = useState(false)
+  const [createError, setCreateError] = useState('')
+  const [createForm, setCreateForm] = useState({
+    title: '',
+    summary: '',
+    content: '',
+    category_id: '',
+    author: '',
+    is_published: true
+  })
 
   useEffect(() => {
     fetchArticles()
-  }, [])
+    if (isAdmin) {
+      fetchCategories()
+    }
+  }, [isAdmin])
 
   const fetchArticles = async () => {
       try {
@@ -33,6 +52,57 @@ export default function ArticlesPage() {
       setError('Không tải được bài viết')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchCategories = async () => {
+    try {
+      const response = await axiosClient.get('/articles/categories')
+      const nextCategories = response.data?.categories || []
+      setCategories(nextCategories)
+      if (nextCategories.length > 0) {
+        setCreateForm((prev) => ({
+          ...prev,
+          category_id: prev.category_id || String(nextCategories[0].id)
+        }))
+      }
+    } catch {
+      setCategories([])
+    }
+  }
+
+  const handleCreateChange = (e) => {
+    const { name, value, type, checked } = e.target
+    setCreateForm((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }))
+  }
+
+  const handleCreateArticle = async (e) => {
+    e.preventDefault()
+    setCreateLoading(true)
+    setCreateError('')
+
+    try {
+      await axiosClient.post('/articles/', {
+        ...createForm,
+        category_id: Number(createForm.category_id)
+      })
+      setShowCreateModal(false)
+      setCreateForm({
+        title: '',
+        summary: '',
+        content: '',
+        category_id: categories[0] ? String(categories[0].id) : '',
+        author: '',
+        is_published: true
+      })
+      fetchArticles()
+    } catch (err) {
+      setCreateError(err.response?.data?.error || 'Không thể tạo bài viết')
+    } finally {
+      setCreateLoading(false)
     }
   }
 
@@ -73,6 +143,14 @@ export default function ArticlesPage() {
                 <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight">Kiến thức sức khỏe</h1>
                 <p className="text-lg text-slate-500 font-medium">Tài nguyên được chuyên gia kiểm duyệt về quản lý tiểu đường và sức khỏe chuyển hóa.</p>
               </div>
+              {isAdmin && (
+                <button
+                  onClick={() => setShowCreateModal(true)}
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-bold hover:from-teal-700 hover:to-cyan-700 transition"
+                >
+                  <Plus size={16} /> Tạo bài viết
+                </button>
+              )}
             </header>
 
             {error && (
@@ -198,6 +276,111 @@ export default function ArticlesPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {showCreateModal && isAdmin && (
+        <div className="fixed inset-0 z-[2100] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-2xl bg-white rounded-3xl border border-slate-100 shadow-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto">
+            <h2 className="text-2xl font-black text-slate-900 mb-5">Tạo bài viết mới</h2>
+
+            {createError && (
+              <div className="mb-4 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-red-700 text-sm font-medium">
+                {createError}
+              </div>
+            )}
+
+            <form onSubmit={handleCreateArticle} className="space-y-4">
+              <div>
+                <label className="text-sm font-bold text-slate-700">Tiêu đề</label>
+                <input
+                  name="title"
+                  value={createForm.title}
+                  onChange={handleCreateChange}
+                  required
+                  className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-bold text-slate-700">Tóm tắt</label>
+                <textarea
+                  name="summary"
+                  value={createForm.summary}
+                  onChange={handleCreateChange}
+                  rows={2}
+                  className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-bold text-slate-700">Nội dung</label>
+                <textarea
+                  name="content"
+                  value={createForm.content}
+                  onChange={handleCreateChange}
+                  rows={8}
+                  required
+                  className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-bold text-slate-700">Danh mục</label>
+                  <select
+                    name="category_id"
+                    value={createForm.category_id}
+                    onChange={handleCreateChange}
+                    required
+                    className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2"
+                  >
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.id}>{category.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm font-bold text-slate-700">Tác giả</label>
+                  <input
+                    name="author"
+                    value={createForm.author}
+                    onChange={handleCreateChange}
+                    placeholder={user?.full_name || 'Admin'}
+                    className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2"
+                  />
+                </div>
+              </div>
+
+              <label className="flex items-center gap-3 text-sm font-medium text-slate-700">
+                <input
+                  type="checkbox"
+                  name="is_published"
+                  checked={createForm.is_published}
+                  onChange={handleCreateChange}
+                  className="w-4 h-4"
+                />
+                Đăng bài ngay
+              </label>
+
+              <div className="pt-2 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(false)}
+                  className="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 font-semibold hover:bg-slate-50"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  disabled={createLoading}
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-bold hover:from-teal-700 hover:to-cyan-700 disabled:opacity-70"
+                >
+                  {createLoading ? 'Đang tạo...' : 'Tạo bài viết'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </motion.div>
   )
 }

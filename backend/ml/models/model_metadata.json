@@ -1,10 +1,9 @@
 {
-  "model_type": "VotingClassifier (RandomForest + GradientBoosting + LogisticRegression)",
-  "training_date": "2026-03-24T13:55:07.488100",
-  "dataset_shape": [
-    768,
-    9
-  ],
+  "model_name": "Neural Network (MLP)",
+  "model_version": "v1.0",
+  "f1_score": 0.6061,
+  "auc_roc": 0.8185,
+  "accuracy": 0.7468,
   "features": [
     "Pregnancies",
     "Glucose",
@@ -14,13 +13,5 @@
     "BMI",
     "DiabetesPedigreeFunction",
     "Age"
-  ],
-  "performance": {
-    "accuracy": 0.7402597402597403,
-    "precision": 0.625,
-    "recall": 0.6481481481481481,
-    "f1": 0.6363636363636364,
-    "auc": 0.8211111111111111
-  },
-  "preprocessing": "Zero values replaced with median"
+  ]
 }

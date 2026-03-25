@@ -55,7 +55,11 @@ export default function LoginPage() {
       
       navigate('/diagnosis')
     } catch (err) {
-      setError(err.response?.data?.error || 'Xác thực thất bại.')
+      if (err.response?.status === 401) {
+        setError('Sai tài khoản hoặc mật khẩu.')
+      } else {
+        setError(err.response?.data?.error || 'Xác thực thất bại.')
+      }
     } finally {
       setLoading(false)
     }
