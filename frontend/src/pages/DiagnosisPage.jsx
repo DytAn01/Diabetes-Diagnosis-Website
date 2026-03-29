@@ -31,6 +31,7 @@ export default function DiagnosisPage() {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [errors, setErrors] = useState({})
   const navigate = useNavigate()
   const { setDiagnosis } = useChat()
 
@@ -65,11 +66,50 @@ export default function DiagnosisPage() {
       note: ''
     })
     setError('')
+    setErrors({})
+  }
+
+  const validateForm = () => {
+    const newErrors = {}
+    const requiredFields = [
+      { name: 'glucose', label: 'Glucose' },
+      { name: 'hba1c', label: 'HbA1c' },
+      { name: 'insulin', label: 'Insulin' },
+      { name: 'bmi', label: 'BMI' },
+      { name: 'blood_pressure', label: 'Huyết áp' },
+      { name: 'waist', label: 'Vòng eo' },
+      { name: 'skin_thickness', label: 'Độ dày da' },
+      { name: 'age', label: 'Tuổi' },
+      { name: 'pregnancies', label: 'Số lần mang thai' }
+    ]
+
+    requiredFields.forEach(field => {
+      if (!formData[field.name] && formData[field.name] !== 0) {
+        newErrors[field.name] = `Vui lòng nhập ${field.label.toLowerCase()}`
+      }
+    })
+
+    setErrors(newErrors)
+
+    if (Object.keys(newErrors).length > 0) {
+      // Scroll to first error
+      const firstErrorField = Object.keys(newErrors)[0]
+      const element = document.getElementsByName(firstErrorField)[0]
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        element.focus({ preventScroll: true })
+      }
+      return false
+    }
+    return true
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
+    
+    if (!validateForm()) return
+
     setLoading(true)
 
     try {
@@ -122,8 +162,17 @@ export default function DiagnosisPage() {
         placeholder={placeholder}
         min={min}
         step={step}
-        className="w-full px-5 py-4 bg-slate-50 border-2 border-slate-50 rounded-2xl text-slate-900 font-medium placeholder:text-slate-300 focus:outline-none focus:bg-white focus:border-teal-500/30 focus:ring-8 focus:ring-teal-500/5 transition-all"
+        className={`w-full px-5 py-4 bg-slate-50 border-2 rounded-2xl text-slate-900 font-medium placeholder:text-slate-300 focus:outline-none focus:bg-white transition-all ${
+          errors[name] 
+            ? 'border-red-500 ring-4 ring-red-500/5' 
+            : 'border-slate-50 focus:border-teal-500/30 focus:ring-8 focus:ring-teal-500/5'
+        }`}
       />
+      {errors[name] && (
+        <p className="text-[10px] font-bold text-red-500 flex items-center gap-1 animate-in fade-in slide-in-from-top-1">
+          <Info size={10} /> {errors[name]}
+        </p>
+      )}
     </div>
   )
 
@@ -211,11 +260,20 @@ export default function DiagnosisPage() {
                   name="family_history"
                   value={formData.family_history}
                   onChange={handleChange}
-                  className="w-full px-5 py-4 bg-slate-50 border-2 border-slate-50 rounded-2xl text-slate-900 font-medium focus:outline-none focus:bg-white focus:border-teal-500/30 focus:ring-8 focus:ring-teal-500/5 transition-all appearance-none cursor-pointer"
+                  className={`w-full px-5 py-4 bg-slate-50 border-2 rounded-2xl text-slate-900 font-medium focus:outline-none focus:bg-white transition-all appearance-none cursor-pointer ${
+                    errors.family_history 
+                      ? 'border-red-500 ring-4 ring-red-500/5' 
+                      : 'border-slate-50 focus:border-teal-500/30 focus:ring-8 focus:ring-teal-500/5'
+                  }`}
                 >
                   <option value={0}>Không có tiền sử</option>
                   <option value={1}>Có tiền sử</option>
                 </select>
+                {errors.family_history && (
+                  <p className="text-[10px] font-bold text-red-500 flex items-center gap-1">
+                    <Info size={10} /> {errors.family_history}
+                  </p>
+                )}
               </div>
             </div>
           </section>
@@ -231,8 +289,17 @@ export default function DiagnosisPage() {
               onChange={handleChange}
               placeholder="Dị ứng, bệnh mạn tính hoặc triệu chứng kèm theo..."
                rows={4}
-               className="w-full px-6 py-5 bg-white border-2 border-slate-100 rounded-[32px] text-slate-900 font-medium focus:outline-none focus:border-teal-500/30 focus:ring-8 focus:ring-teal-500/5 transition-all"
+               className={`w-full px-6 py-5 bg-white border-2 rounded-[32px] text-slate-900 font-medium focus:outline-none transition-all ${
+                 errors.note 
+                   ? 'border-red-500 ring-4 ring-red-500/5' 
+                   : 'border-slate-100 focus:border-teal-500/30 focus:ring-8 focus:ring-teal-500/5'
+               }`}
              />
+             {errors.note && (
+               <p className="text-[10px] font-bold text-red-500 flex items-center gap-1">
+                 <Info size={10} /> {errors.note}
+               </p>
+             )}
           </section>
 
           {/* Submit */}

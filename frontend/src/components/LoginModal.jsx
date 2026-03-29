@@ -48,25 +48,22 @@ export default function LoginModal({ isOpen, onClose }) {
         onClick={onClose}
       />
 
-      {/* Modal */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        transition={{ type: 'spring', damping: 20, stiffness: 300 }}
-        className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md mx-4 px-4 sm:px-0"
-        onClick={(e) => e.stopPropagation()}
-      >
+      {/* Modal Container */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.9, y: 20 }}
+          transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+          className="pointer-events-auto w-full max-w-md"
+          onClick={(e) => e.stopPropagation()}
+        >
         <div className="glass-card rounded-[32px] overflow-hidden shadow-2xl border-white/50">
           {/* Top Visual Icon */}
           <div className="flex justify-center pt-8 pb-2">
             <div className="w-14 h-14 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg">
               <ShieldCheck size={28} className="text-white" />
             </div>
-          </div>
-
-          {/* Header */}
-          <div className="relative px-8 py-6 text-center space-y-1">
             <button
               onClick={onClose}
               className="absolute top-4 right-4 p-2 hover:bg-slate-100 rounded-lg transition"
@@ -74,6 +71,10 @@ export default function LoginModal({ isOpen, onClose }) {
             >
               <X size={20} className="text-slate-400" />
             </button>
+          </div>
+
+          {/* Header */}
+          <div className="relative px-8 py-6 text-center space-y-1">
             
             <h2 className="text-2xl font-bold text-slate-900" style={{ fontFamily: "'Be Vietnam Pro', sans-serif" }}>
               Bắt buộc đăng nhập
@@ -112,6 +113,7 @@ export default function LoginModal({ isOpen, onClose }) {
           </div>
         </div>
       </motion.div>
+      </div>
     </>
   )
 }
