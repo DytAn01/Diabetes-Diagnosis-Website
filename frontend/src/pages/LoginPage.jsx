@@ -21,6 +21,7 @@ import axiosClient from '../api/axiosClient'
 export default function LoginPage() {
   const [formData, setFormData] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
+  const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
@@ -32,14 +33,23 @@ export default function LoginPage() {
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
+  const validateForm = () => {
+    const newErrors = {}
+    if (!formData.email) newErrors.email = 'Email không được để trống'
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email không hợp lệ'
+    
+    if (!formData.password) newErrors.password = 'Mật khẩu không được để trống'
+    
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
+    setErrors({})
     
-    if (!formData.email || !formData.password) {
-      setError('Vui lòng cung cấp email và mật khẩu.')
-      return
-    }
+    if (!validateForm()) return
     
     setLoading(true)
 
@@ -66,7 +76,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center p-6 relative overflow-hidden">
+    <div className="min-h-[80vh] pt-16 flex items-center justify-center p-6 relative overflow-hidden">
       {/* Background Orbs */}
       <div className="absolute top-1/4 -left-20 w-80 h-80 bg-teal-500/10 rounded-full blur-[120px] -z-10" />
       <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-blue-500/10 rounded-full blur-[120px] -z-10" />
@@ -115,8 +125,13 @@ export default function LoginPage() {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="bacsi@benhvien.com"
-                className="w-full px-6 py-4 bg-slate-50 border-2 border-slate-50 rounded-2xl text-slate-900 font-medium placeholder:text-slate-300 focus:outline-none focus:bg-white focus:border-teal-500/30 focus:ring-8 focus:ring-teal-500/5 transition-all outline-none"
+                className={`w-full px-6 py-4 bg-slate-50 border-2 rounded-2xl text-slate-900 font-medium placeholder:text-slate-300 focus:outline-none focus:bg-white transition-all outline-none ${errors.email ? 'border-red-500 focus:border-red-500 focus:ring-red-500/5' : 'border-slate-50 focus:border-teal-500/30 focus:ring-teal-500/5'}`}
               />
+              {errors.email && (
+                <p className="text-[10px] font-bold text-red-500 mt-1 ml-2 flex items-center gap-1">
+                  <AlertCircle size={10} /> {errors.email}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2 group">
@@ -132,7 +147,7 @@ export default function LoginPage() {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="••••••••"
-                  className="w-full px-6 py-4 bg-slate-50 border-2 border-slate-50 rounded-2xl text-slate-900 font-medium placeholder:text-slate-300 focus:outline-none focus:bg-white focus:border-teal-500/30 focus:ring-8 focus:ring-teal-500/5 transition-all outline-none"
+                  className={`w-full px-6 py-4 bg-slate-50 border-2 rounded-2xl text-slate-900 font-medium placeholder:text-slate-300 focus:outline-none focus:bg-white transition-all outline-none ${errors.password ? 'border-red-500 focus:border-red-500 focus:ring-red-500/5' : 'border-slate-50 focus:border-teal-500/30 focus:ring-teal-500/5'}`}
                 />
                 <button
                   type="button"
@@ -142,6 +157,11 @@ export default function LoginPage() {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+              {errors.password && (
+                <p className="text-[10px] font-bold text-red-500 mt-1 ml-2 flex items-center gap-1">
+                  <AlertCircle size={10} /> {errors.password}
+                </p>
+              )}
             </div>
 
             <div className="flex items-center">
@@ -181,9 +201,9 @@ export default function LoginPage() {
                     Đăng ký
                   </Link>
                 </p>
-                 <div className="flex items-center gap-2 px-3 py-1 bg-amber-50 text-amber-700 rounded-lg text-[10px] font-black uppercase tracking-widest border border-amber-100">
+                 {/* <div className="flex items-center gap-2 px-3 py-1 bg-amber-50 text-amber-700 rounded-lg text-[10px] font-black uppercase tracking-widest border border-amber-100">
                    <Sparkles size={10} /> Yêu cầu ID lâm sàng
-                 </div>
+                 </div> */}
              </div>
           </footer>
         </div>

@@ -15,6 +15,10 @@ class Config:
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
 
+    # Upload configuration
+    UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'uploads', 'articles')
+    MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5MB limit
+
 class DevelopmentConfig(Config):
     """Development configuration"""
     DEBUG = True

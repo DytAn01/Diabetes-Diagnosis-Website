@@ -12,7 +12,10 @@ import {
   Activity,
   User,
   AlertCircle,
-  Plus
+  Plus,
+  Edit2,
+  Trash2,
+  EyeOff
 } from 'lucide-react'
 import axiosClient from '../api/axiosClient'
 import { useAuth } from '../hooks/useAuth'
@@ -34,8 +37,11 @@ export default function ArticlesPage() {
     content: '',
     category_id: '',
     author: '',
-    is_published: true
+    is_published: true,
+    thumbnail: null
   })
+  const [editingArticle, setEditingArticle] = useState(null)
+  const [thumbnailPreview, setThumbnailPreview] = useState(null)
 
   useEffect(() => {
     fetchArticles()
@@ -46,7 +52,9 @@ export default function ArticlesPage() {
 
   const fetchArticles = async () => {
       try {
-      const response = await axiosClient.get('/articles/')
+      const response = await axiosClient.get('/articles/', {
+        params: { include_unpublished: isAdmin }
+      })
       setArticles(response.data.articles || [])
     } catch (err) {
       setError('Không tải được bài viết')
@@ -71,6 +79,18 @@ export default function ArticlesPage() {
     }
   }
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      setCreateForm(prev => ({ ...prev, thumbnail: file }))
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setThumbnailPreview(reader.result)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
   const handleCreateChange = (e) => {
     const { name, value, type, checked } = e.target
     setCreateForm((prev) => ({
@@ -85,24 +105,88 @@ export default function ArticlesPage() {
     setCreateError('')
 
     try {
-      await axiosClient.post('/articles/', {
-        ...createForm,
-        category_id: Number(createForm.category_id)
+      const formData = new FormData()
+      formData.append('title', createForm.title)
+      formData.append('summary', createForm.summary)
+      formData.append('content', createForm.content)
+      formData.append('category_id', createForm.category_id)
+      formData.append('author', createForm.author)
+      formData.append('is_published', createForm.is_published)
+      if (createForm.thumbnail) {
+        formData.append('thumbnail', createForm.thumbnail)
+      }
+
+      const url = editingArticle ? `/articles/${editingArticle.id}` : '/articles/'
+      const method = editingArticle ? 'put' : 'post'
+      
+      await axiosClient({
+        method,
+        url,
+        data: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
       })
+
       setShowCreateModal(false)
+      setEditingArticle(null)
+      setThumbnailPreview(null)
       setCreateForm({
         title: '',
         summary: '',
         content: '',
         category_id: categories[0] ? String(categories[0].id) : '',
         author: '',
-        is_published: true
+        is_published: true,
+        thumbnail: null
       })
       fetchArticles()
     } catch (err) {
-      setCreateError(err.response?.data?.error || 'Không thể tạo bài viết')
+      setCreateError(err.response?.data?.error || 'Không thể lưu bài viết')
     } finally {
       setCreateLoading(false)
+    }
+  }
+
+  const handleEditClick = (e, article) => {
+    e.stopPropagation()
+    setEditingArticle(article)
+    setCreateForm({
+      title: article.title,
+      summary: article.summary || '',
+      content: article.content,
+      category_id: String(article.category_id),
+      author: article.author || '',
+      is_published: article.is_published,
+      thumbnail: null
+    })
+    setThumbnailPreview(article.thumbnail_url ? `${axiosClient.defaults.baseURL.replace('/api', '')}${article.thumbnail_url}` : null)
+    setShowCreateModal(true)
+  }
+  const handleCloseModal = () => {
+    setShowCreateModal(false)
+    setEditingArticle(null)
+    setThumbnailPreview(null)
+    setCreateForm({
+      title: '',
+      summary: '',
+      content: '',
+      category_id: categories[0] ? String(categories[0].id) : '',
+      author: '',
+      is_published: true,
+      thumbnail: null
+    })
+  }
+
+  const handleDeleteArticle = async (e, id) => {
+    e.stopPropagation()
+    if (!window.confirm('Bạn có chắc chắn muốn xóa bài viết này?')) return
+
+    try {
+      await axiosClient.delete(`/articles/${id}`)
+      fetchArticles()
+    } catch (err) {
+      alert('Không thể xóa bài viết')
     }
   }
 
@@ -171,10 +255,24 @@ export default function ArticlesPage() {
                   onClick={() => setSelectedArticle(article)}
                   className="group cursor-pointer"
                 >
-                  <div className="glass-card h-full rounded-[40px] border-white overflow-hidden flex flex-col hover:shadow-2xl transition-all duration-500 group-hover:-translate-y-2">
+                  <div className={`glass-card h-full rounded-[40px] border-white overflow-hidden flex flex-col hover:shadow-2xl transition-all duration-500 group-hover:-translate-y-2 relative ${!article.is_published ? 'opacity-75 border-dashed border-slate-300 bg-slate-50/50' : ''}`}>
+                    {!article.is_published && (
+                      <div className="absolute top-4 right-4 z-10 px-3 py-1 bg-amber-500 text-white rounded-full text-[8px] font-black uppercase tracking-widest flex items-center gap-1 shadow-lg">
+                        <EyeOff size={10} /> Bản nháp
+                      </div>
+                    )}
+                    
                     <div className="h-48 bg-slate-900 relative overflow-hidden flex items-center justify-center">
-                       <div className="absolute inset-0 bg-gradient-to-br from-teal-500/20 to-purple-500/20" />
-                       <Newspaper size={48} className="text-white/20 group-hover:scale-110 group-hover:text-teal-400 transition-all duration-700" />
+                       {article.thumbnail_url ? (
+                         <img 
+                           src={`${axiosClient.defaults.baseURL.replace('/api', '')}${article.thumbnail_url}`} 
+                           alt={article.title}
+                           className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-60"
+                         />
+                       ) : (
+                         <div className="absolute inset-0 bg-gradient-to-br from-teal-500/20 to-purple-500/20" />
+                       )}
+                       <Newspaper size={48} className="relative z-10 text-white/20 group-hover:scale-110 group-hover:text-teal-400 transition-all duration-700" />
                        <div className="absolute bottom-4 left-4">
                            <span className="px-3 py-1 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg text-[8px] font-black uppercase tracking-widest text-white">
                                 {article.category || 'Lâm sàng'}
@@ -183,11 +281,29 @@ export default function ArticlesPage() {
                     </div>
                     
                     <div className="p-8 space-y-4 flex-grow flex flex-col">
-                      <h3 className="text-2xl font-black text-slate-900 leading-tight group-hover:text-teal-600 transition-colors">
-                        {article.title}
-                      </h3>
+                      <div className="flex justify-between items-start gap-4">
+                        <h3 className="text-2xl font-black text-slate-900 leading-tight group-hover:text-teal-600 transition-colors line-clamp-2">
+                          {article.title}
+                        </h3>
+                        {isAdmin && (
+                          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button 
+                              onClick={(e) => handleEditClick(e, article)}
+                              className="p-2 bg-white/80 backdrop-blur shadow-sm rounded-lg text-slate-400 hover:text-teal-500 hover:bg-white transition-all"
+                            >
+                              <Edit2 size={14} />
+                            </button>
+                            <button 
+                              onClick={(e) => handleDeleteArticle(e, article.id)}
+                              className="p-2 bg-white/80 backdrop-blur shadow-sm rounded-xl text-slate-400 hover:text-red-500 hover:bg-white transition-all"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        )}
+                      </div>
                       <p className="text-slate-500 text-sm font-medium leading-relaxed line-clamp-3">
-                        {article.content.substring(0, 150)}...
+                        {article.summary || `${article.content.substring(0, 150)}...`}
                       </p>
                       
                       <div className="mt-auto pt-6 flex items-center justify-between border-t border-slate-50">
@@ -260,7 +376,7 @@ export default function ArticlesPage() {
                 ))}
               </div>
 
-              <footer className="pt-12 border-t border-slate-100 space-y-8">
+              {/* <footer className="pt-12 border-t border-slate-100 space-y-8">
                  <div className="p-10 rounded-[40px] bg-slate-900 text-white relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-8 opacity-10">
                        <Activity size={100} />
@@ -271,16 +387,18 @@ export default function ArticlesPage() {
                        <button className="bg-teal-500 text-slate-900 px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-transform active:scale-95">Đăng ký Thư viện</button>
                     </div>
                  </div>
-              </footer>
+              </footer> */}
             </article>
           </motion.div>
         )}
       </AnimatePresence>
 
       {showCreateModal && isAdmin && (
-        <div className="fixed inset-0 z-[2100] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-2xl bg-white rounded-3xl border border-slate-100 shadow-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto">
-            <h2 className="text-2xl font-black text-slate-900 mb-5">Tạo bài viết mới</h2>
+        <div className="fixed inset-0 -top-16 z-[100] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4" onClick={handleCloseModal}>
+          <div className="w-full max-w-2xl bg-white rounded-3xl border border-slate-100 shadow-2xl p-6 md:p-8 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-2xl font-black text-slate-900 mb-5">
+              {editingArticle ? 'Chỉnh sửa bài viết' : 'Tạo bài viết mới'}
+            </h2>
 
             {createError && (
               <div className="mb-4 rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-red-700 text-sm font-medium">
@@ -290,13 +408,29 @@ export default function ArticlesPage() {
 
             <form onSubmit={handleCreateArticle} className="space-y-4">
               <div>
+                <label className="text-sm font-bold text-slate-700">Ảnh đại diện (Thumbnail)</label>
+                <div className="mt-2 flex items-center gap-4">
+                  {thumbnailPreview && (
+                    <div className="w-24 h-24 rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
+                      <img src={thumbnailPreview} alt="Preview" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <label className="flex-grow flex flex-col items-center justify-center px-4 py-4 bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
+                    <span className="text-xs font-bold text-slate-500">Nhấp để chọn ảnh</span>
+                    <span className="text-[10px] text-slate-400 mt-1">PNG, JPG up to 5MB</span>
+                    <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
+                  </label>
+                </div>
+              </div>
+
+              <div>
                 <label className="text-sm font-bold text-slate-700">Tiêu đề</label>
                 <input
                   name="title"
                   value={createForm.title}
                   onChange={handleCreateChange}
                   required
-                  className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2"
+                  className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 outline-none transition-all"
                 />
               </div>
 
@@ -364,7 +498,7 @@ export default function ArticlesPage() {
               <div className="pt-2 flex justify-end gap-3">
                 <button
                   type="button"
-                  onClick={() => setShowCreateModal(false)}
+                  onClick={handleCloseModal}
                   className="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 font-semibold hover:bg-slate-50"
                 >
                   Hủy
@@ -374,7 +508,7 @@ export default function ArticlesPage() {
                   disabled={createLoading}
                   className="px-5 py-2 rounded-xl bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-bold hover:from-teal-700 hover:to-cyan-700 disabled:opacity-70"
                 >
-                  {createLoading ? 'Đang tạo...' : 'Tạo bài viết'}
+                  {createLoading ? 'Đang lưu...' : (editingArticle ? 'Cập nhật bài viết' : 'Tạo bài viết')}
                 </button>
               </div>
             </form>

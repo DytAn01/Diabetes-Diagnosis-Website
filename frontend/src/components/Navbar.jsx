@@ -42,7 +42,7 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="backdrop-blur-sm bg-gradient-to-r from-teal-600/85 to-cyan-600/85 text-white shadow-lg sticky top-0 z-[2000]">
+    <nav className="backdrop-blur-sm bg-gradient-to-r from-teal-600/85 to-cyan-600/85 text-white shadow-lg sticky top-0 z-20">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-3 select-none">
           <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-lg font-extrabold text-white drop-shadow">

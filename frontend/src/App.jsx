@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { useEffect } from 'react'
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { ChatProvider } from './context/ChatContext'
 import Navbar from './components/Navbar'
@@ -14,13 +15,28 @@ import ArticlesPage from './pages/ArticlesPage'
 import HealthTrackerPage from './pages/HealthTrackerPage'
 import AccountPage from './pages/AccountPage'
 import PrivateRoute from './components/PrivateRoute'
+ 
+function ScrollToTop() {
+  const { pathname } = useLocation()
+ 
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'instant' 
+    })
+  }, [pathname])
+ 
+  return null
+}
 
 function App() {
   return (
     <AuthProvider>
       <ChatProvider>
         <Router>
-          <div className="flex flex-col min-h-screen">
+          <ScrollToTop />
+          <div className="flex flex-col min-h-screen ">
             <Navbar />
             <main className="flex-grow container mx-auto px-4 py-8">
               <Routes>

@@ -133,13 +133,13 @@ export default function HomePage() {
         <div className="p-12 md:p-20 flex flex-col md:flex-row items-center gap-16">
           <motion.div variants={itemVariants} className="md:w-1/2 space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-white rounded-lg text-slate-500 text-[10px] font-black uppercase tracking-widest border border-slate-200">
-              <Database size={10} /> Data Source: PIMA Indian Diabetes Dataset
+              <Database size={10} /> Nguồn dữ liệu: PIMA Indian Diabetes Dataset
             </div>
             <h2 className="text-4xl font-black text-slate-900 leading-tight">
-              Grounded in <span className="text-teal-600 underline decoration-teal-500/20 underline-offset-8">Scientific Integrity</span>
+              Dựa trên <span className="text-teal-600 underline decoration-teal-500/20 underline-offset-8">Tính toàn vẹn khoa học</span>
             </h2>
             <p className="text-slate-600 font-medium leading-relaxed">
-              Our assessment platform utilizes robust machine learning models trained on the globally recognized PIMA Indian Diabetes Database. By analyzing critical biomarkers—including glucose concentration, blood pressure, and BMI—we provide a preliminary risk evaluation that empowers users to take proactive steps.
+              Nền tảng đánh giá của chúng tôi sử dụng các mô hình học máy mạnh mẽ được đào tạo trên Cơ sở dữ liệu Tiểu đường PIMA Indian được công nhận trên toàn cầu. Bằng cách phân tích các dấu ấn sinh học quan trọng—bao gồm nồng độ glucose, huyết áp và BMI—chúng tôi cung cấp đánh giá rủi ro sơ bộ giúp người dùng chủ động thực hiện các bước.
             </p>
             <div className="flex items-center gap-6 pt-4">
               <div className="flex -space-x-3">
@@ -149,7 +149,7 @@ export default function HomePage() {
                   </div>
                 ))}
               </div>
-              <p className="text-sm font-bold text-slate-900 tracking-tight">Vetted by 4,000+ data simulations</p>
+              <p className="text-sm font-bold text-slate-900 tracking-tight">Đã được xác minh bởi hơn 4.000 mô phỏng dữ liệu</p>
             </div>
           </motion.div>
           
@@ -159,7 +159,7 @@ export default function HomePage() {
           >
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-black uppercase tracking-widest text-slate-400">Diagnostic Accuracy</span>
+                <span className="text-xs font-black uppercase tracking-widest text-slate-400">Độ chính xác chẩn đoán</span>
                 <span className="text-xs font-black text-teal-500">92.4%</span>
               </div>
               <div className="h-4 w-full bg-slate-100 rounded-full overflow-hidden">
@@ -172,12 +172,12 @@ export default function HomePage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Processing</p>
-                  <p className="text-xl font-black text-slate-900">Real-time</p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Xử lý</p>
+                  <p className="text-xl font-black text-slate-900">Thời gian thực</p>
                 </div>
                 <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Safety</p>
-                  <p className="text-xl font-black text-slate-900">Encrypted</p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Bảo mật</p>
+                  <p className="text-xl font-black text-slate-900">Mã hóa</p>
                 </div>
               </div>
             </div>
@@ -192,9 +192,9 @@ export default function HomePage() {
             <Heart size={24} />
           </div>
         </div>
-        <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Clinical Disclaimer</h3>
+        <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Tuyên bố miễn trừ trách nhiệm lâm sàng</h3>
         <p className="text-sm text-slate-500 font-medium leading-relaxed italic">
-          This digital diagnostic tool is intended for informational and educational purposes only. It is not a substitute for professional medical advice, diagnosis, or treatment. Always consult with a qualified healthcare provider for clinical evaluation.
+          Công cụ chẩn đoán kỹ thuật số này chỉ nhằm mục đích cung cấp thông tin và giáo dục. Nó không thay thế cho lời khuyên, chẩn đoán hoặc điều trị y tế chuyên nghiệp. Luôn tham khảo ý kiến của nhà cung cấp dịch vụ chăm sóc sức khỏe đủ tiêu chuẩn để được đánh giá lâm sàng.
         </p>
       </section>
     </motion.div>
